@@ -102,12 +102,12 @@ def zip_iterator(root="."):
                 yield os.path.join(root, x)
 
 
-def prepare_extract_xml_from_zips(root='.'):
+def prepare_extract_xml_from_zips(root='.', count_workers=2):
     manager = Manager()
     q_zip_files = manager.Queue()
     q_result = manager.Queue()
     q_errors = manager.Queue()
-    count_processes = 2
+    count_processes = count_workers
     pool_processes = []
     for x in xrange(count_processes):
         pool_processes.append(Process(target=worker,
@@ -123,8 +123,9 @@ def prepare_extract_xml_from_zips(root='.'):
     for x in zip_iterator():
         q_zip_files.put(x)
         counter += 1
-    q_zip_files.put(StopIteration)
-    q_zip_files.put(StopIteration)
+    for x in xrange(count_processes):
+        q_zip_files.put(StopIteration)
+
     print("[{}] zip files in queue".format(counter))
     count_stop_iterations = 0
     counter = 0
@@ -134,7 +135,7 @@ def prepare_extract_xml_from_zips(root='.'):
         levels_writer.writeheader()
         with open('id_object.csv', 'wb') as csvfile_objects:
             objects_writer = csv.DictWriter(csvfile_objects,
-                                            fieldnames=['id', 'object'], 
+                                            fieldnames=['id', 'object'],
                                             quoting=csv.QUOTE_MINIMAL)
             objects_writer.writeheader()
             while True:
@@ -198,11 +199,10 @@ def prepare_extract_xml_from_zips(root='.'):
         print("all done")
 
 
-
 if __name__ == '__main__':
     loglevel = logging.INFO
     logging.basicConfig(filename='log.log', level=loglevel,
                         format='%(levelname)-8s %(asctime)-16s %(message)s')
     logging.info("start")
     prepare_extract_xml_from_zips(root='.')
-    logging.info("end")    
+    logging.info("end")
