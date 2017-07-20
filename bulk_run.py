@@ -1,5 +1,6 @@
 from __future__ import unicode_literals
 import logging
+import multiprocessing
 
 from create_work_set import generate_zip_files
 from mp_worker_queue import prepare_extract_xml_from_zips
@@ -7,7 +8,7 @@ from mp_worker_queue import prepare_extract_xml_from_zips
 if __name__ == '__main__':
     loglevel = logging.INFO
     path_for_zips = "place_for_zips"
-    count_workers = 1
+    count_workers = multiprocessing.cpu_count()
 
     logging.basicConfig(filename='log.log', level=loglevel,
                         format='%(levelname)-8s %(asctime)-16s %(message)s')
