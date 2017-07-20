@@ -5,6 +5,5 @@ requirements: lxml
 
 just run: 
 ```
-pip install -r requirements.txt
 python bulk_run.py
 ```
